@@ -1,187 +1,134 @@
-# Superpowers
+# Superpowers for GitHub Copilot CLI
 
-Superpowers is a complete software development workflow for your coding agents, built on top of a set of composable "skills" and some initial instructions that make sure your agent uses them.
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Skills](https://img.shields.io/badge/Skills-14-blue)](plugins/superpowers/skills)
+[![Source](https://img.shields.io/badge/Source-obra%2Fsuperpowers-purple)](https://github.com/obra/superpowers)
 
-## How it works
+> **Until [obra/superpowers](https://github.com/obra/superpowers) ships native GitHub Copilot CLI support, this repo packages the full Superpowers skills library using Copilot CLI's native plugin and skills system. All skills are Jesse Vincent's original work — this repo only adds the Copilot CLI wiring.**
 
-It starts from the moment you fire up your coding agent. As soon as it sees that you're building something, it *doesn't* just jump into trying to write code. Instead, it steps back and asks you what you're really trying to do. 
+## What is Superpowers?
 
-Once it's teased a spec out of the conversation, it shows it to you in chunks short enough to actually read and digest. 
+[Superpowers](https://github.com/obra/superpowers) by [Jesse Vincent](https://github.com/obra) is a complete software development workflow for AI coding agents. It transforms how your agent works:
 
-After you've signed off on the design, your agent puts together an implementation plan that's clear enough for an enthusiastic junior engineer with poor taste, no judgement, no project context, and an aversion to testing to follow. It emphasizes true red/green TDD, YAGNI (You Aren't Gonna Need It), and DRY. 
+- **Brainstorming** → Refines ideas through questions before writing code
+- **Test-Driven Development** → Enforced RED-GREEN-REFACTOR, no exceptions
+- **Systematic Debugging** → 4-phase root cause analysis, no random fixes
+- **Plan Writing** → Bite-sized tasks with exact file paths and commands
+- **Subagent-Driven Development** → Fresh subagent per task with two-stage review
+- **Code Review** → Automated review against plan and coding standards
 
-Next up, once you say "go", it launches a *subagent-driven-development* process, having agents work through each engineering task, inspecting and reviewing their work, and continuing forward. It's not uncommon for Claude to be able to work autonomously for a couple hours at a time without deviating from the plan you put together.
-
-There's a bunch more to it, but that's the core of the system. And because the skills trigger automatically, you don't need to do anything special. Your coding agent just has Superpowers.
-
-
-## Sponsorship
-
-If Superpowers has helped you do stuff that makes money and you are so inclined, I'd greatly appreciate it if you'd consider [sponsoring my opensource work](https://github.com/sponsors/obra).
-
-Thanks! 
-
-- Jesse
-
+Superpowers already supports Claude Code, Cursor, Codex, Gemini CLI, and OpenCode. **This repo adds GitHub Copilot CLI to that list.**
 
 ## Installation
 
-**Note:** Installation differs by platform. Claude Code or Cursor have built-in plugin marketplaces. Codex and OpenCode require manual setup.
-
-### Claude Code Official Marketplace
-
-Superpowers is available via the [official Claude plugin marketplace](https://claude.com/plugins/superpowers)
-
-Install the plugin from Claude marketplace:
+### Method 1 — One command (easiest)
 
 ```bash
-/plugin install superpowers@claude-plugins-official
+curl -fsSL https://raw.githubusercontent.com/DwainTR/superpowers-copilot/main/install.sh | bash
 ```
 
-### Claude Code (via Plugin Marketplace)
-
-In Claude Code, register the marketplace first:
+### Method 2 — Native plugin marketplace
 
 ```bash
-/plugin marketplace add obra/superpowers-marketplace
+copilot plugin marketplace add DwainTR/superpowers-copilot
+copilot plugin install superpowers@superpowers-copilot
 ```
 
-Then install the plugin from this marketplace:
+### Verify
 
-```bash
-/plugin install superpowers@superpowers-marketplace
-```
-
-### Cursor (via Plugin Marketplace)
-
-In Cursor Agent chat, install from marketplace:
-
-```text
-/add-plugin superpowers
-```
-
-or search for "superpowers" in the plugin marketplace.
-
-### Codex
-
-Tell Codex:
+Start a new Copilot CLI session and run:
 
 ```
-Fetch and follow instructions from https://raw.githubusercontent.com/obra/superpowers/refs/heads/main/.codex/INSTALL.md
+/skills list
 ```
 
-**Detailed docs:** [docs/README.codex.md](docs/README.codex.md)
+You should see all 14 Superpowers skills listed.
 
-### OpenCode
+## What's Included
 
-Tell OpenCode:
+### 14 Skills
+
+| Skill | When it activates |
+|-------|-------------------|
+| **brainstorming** | Before any creative work — creating features, building components |
+| **test-driven-development** | When implementing any feature or bugfix, before writing code |
+| **systematic-debugging** | When encountering any bug, test failure, or unexpected behavior |
+| **writing-plans** | When you have specs for a multi-step task, before touching code |
+| **executing-plans** | When executing an implementation plan with human checkpoints |
+| **subagent-driven-development** | When executing plans with independent tasks via subagents |
+| **dispatching-parallel-agents** | When facing 2+ independent tasks that can be worked on in parallel |
+| **requesting-code-review** | Between tasks, to review against plan |
+| **receiving-code-review** | When responding to review feedback |
+| **verification-before-completion** | Before declaring any fix or feature done |
+| **using-git-worktrees** | After design approval, to create isolated workspace |
+| **finishing-a-development-branch** | When all tasks complete, to merge/PR/cleanup |
+| **writing-skills** | When creating new skills |
+| **using-superpowers** | Meta-skill that ensures all other skills are used when relevant |
+
+### 1 Custom Agent
+
+| Agent | Description |
+|-------|-------------|
+| **code-reviewer** | Senior code reviewer that validates completed work against plans and coding standards |
+
+## Usage
+
+Skills activate automatically when Copilot detects relevance. You can also invoke them explicitly:
 
 ```
-Fetch and follow instructions from https://raw.githubusercontent.com/obra/superpowers/refs/heads/main/.opencode/INSTALL.md
+Use the /brainstorming skill to explore this feature idea
+Use the /test-driven-development skill to implement this
+Use the /systematic-debugging skill to find the root cause
 ```
 
-**Detailed docs:** [docs/README.opencode.md](docs/README.opencode.md)
+### The Basic Workflow
 
-### Gemini CLI
+1. **Brainstorming** → "Let's build a notification system"
+2. **Writing Plans** → Agent creates detailed implementation plan
+3. **Subagent-Driven Development** → Agent dispatches subagents per task
+4. **Test-Driven Development** → Each task follows RED-GREEN-REFACTOR
+5. **Code Review** → Automated review after each step
+6. **Verification** → Confirm everything works before marking done
 
-```bash
-gemini extensions install https://github.com/obra/superpowers
-```
+## How It Works
 
-To update:
+This repo follows the exact same patterns as other Copilot CLI plugins:
 
-```bash
-gemini extensions update superpowers
-```
+- **Skills** are stored in `plugins/superpowers/skills/` — each skill has a `SKILL.md` with YAML frontmatter
+- **Agents** are stored in `plugins/superpowers/agents/` — Markdown files with agent configuration
+- **Marketplace manifest** in `.claude-plugin/marketplace.json` — allows `copilot plugin install`
+- **Install script** for one-command setup — clones, symlinks, and configures custom instructions
 
-### Verify Installation
-
-Start a new session in your chosen platform and ask for something that should trigger a skill (for example, "help me plan this feature" or "let's debug this issue"). The agent should automatically invoke the relevant superpowers skill.
-
-## The Basic Workflow
-
-1. **brainstorming** - Activates before writing code. Refines rough ideas through questions, explores alternatives, presents design in sections for validation. Saves design document.
-
-2. **using-git-worktrees** - Activates after design approval. Creates isolated workspace on new branch, runs project setup, verifies clean test baseline.
-
-3. **writing-plans** - Activates with approved design. Breaks work into bite-sized tasks (2-5 minutes each). Every task has exact file paths, complete code, verification steps.
-
-4. **subagent-driven-development** or **executing-plans** - Activates with plan. Dispatches fresh subagent per task with two-stage review (spec compliance, then code quality), or executes in batches with human checkpoints.
-
-5. **test-driven-development** - Activates during implementation. Enforces RED-GREEN-REFACTOR: write failing test, watch it fail, write minimal code, watch it pass, commit. Deletes code written before tests.
-
-6. **requesting-code-review** - Activates between tasks. Reviews against plan, reports issues by severity. Critical issues block progress.
-
-7. **finishing-a-development-branch** - Activates when tasks complete. Verifies tests, presents options (merge/PR/keep/discard), cleans up worktree.
-
-**The agent checks for relevant skills before any task.** Mandatory workflows, not suggestions.
-
-## What's Inside
-
-### Skills Library
-
-**Testing**
-- **test-driven-development** - RED-GREEN-REFACTOR cycle (includes testing anti-patterns reference)
-
-**Debugging**
-- **systematic-debugging** - 4-phase root cause process (includes root-cause-tracing, defense-in-depth, condition-based-waiting techniques)
-- **verification-before-completion** - Ensure it's actually fixed
-
-**Collaboration** 
-- **brainstorming** - Socratic design refinement
-- **writing-plans** - Detailed implementation plans
-- **executing-plans** - Batch execution with checkpoints
-- **dispatching-parallel-agents** - Concurrent subagent workflows
-- **requesting-code-review** - Pre-review checklist
-- **receiving-code-review** - Responding to feedback
-- **using-git-worktrees** - Parallel development branches
-- **finishing-a-development-branch** - Merge/PR decision workflow
-- **subagent-driven-development** - Fast iteration with two-stage review (spec compliance, then code quality)
-
-**Meta**
-- **writing-skills** - Create new skills following best practices (includes testing methodology)
-- **using-superpowers** - Introduction to the skills system
-
-## Philosophy
-
-- **Test-Driven Development** - Write tests first, always
-- **Systematic over ad-hoc** - Process over guessing
-- **Complexity reduction** - Simplicity as primary goal
-- **Evidence over claims** - Verify before declaring success
-
-Read more: [Superpowers for Claude Code](https://blog.fsck.com/2025/10/09/superpowers/)
-
-## Contributing
-
-Skills live directly in this repository. To contribute:
-
-1. Fork the repository
-2. Create a branch for your skill
-3. Follow the `writing-skills` skill for creating and testing new skills
-4. Submit a PR
-
-See `skills/writing-skills/SKILL.md` for the complete guide.
+The install script also adds a snippet to `~/.copilot/copilot-instructions.md` that tells Copilot to check for relevant skills before every task — replicating the session-start hook that Superpowers uses in Claude Code.
 
 ## Updating
 
-Skills update automatically when you update the plugin:
+### Method 1 users
 
 ```bash
-/plugin update superpowers
+curl -fsSL https://raw.githubusercontent.com/DwainTR/superpowers-copilot/main/install.sh | bash
 ```
+
+### Method 2 users
+
+```bash
+copilot plugin update superpowers@superpowers-copilot
+```
+
+## Uninstalling
+
+```bash
+rm -rf ~/.copilot/skills/superpowers
+rm -f ~/.copilot/agents/code-reviewer.md
+```
+
+And remove the `<!-- superpowers-installed -->` section from `~/.copilot/copilot-instructions.md`.
+
+## Credits
+
+- **[Jesse Vincent](https://github.com/obra)** — Creator of [Superpowers](https://github.com/obra/superpowers). All skills are his original work under MIT License.
+- **[DwainTR](https://github.com/DwainTR)** — Copilot CLI packaging and installation tooling.
 
 ## License
 
-MIT License - see LICENSE file for details
-
-## Community
-
-Superpowers is built by [Jesse Vincent](https://blog.fsck.com) and the rest of the folks at [Prime Radiant](https://primeradiant.com).
-
-For community support, questions, and sharing what you're building with Superpowers, join us on [Discord](https://discord.gg/Jd8Vphy9jq).
-
-## Support
-
-- **Discord**: [Join us on Discord](https://discord.gg/Jd8Vphy9jq)
-- **Issues**: https://github.com/obra/superpowers/issues
-- **Marketplace**: https://github.com/obra/superpowers-marketplace
+MIT — Same as the original [obra/superpowers](https://github.com/obra/superpowers/blob/main/LICENSE).
