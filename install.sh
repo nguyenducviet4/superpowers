@@ -2,11 +2,11 @@
 set -euo pipefail
 
 # Superpowers for GitHub Copilot CLI — One-line installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/DwainTR/superpowers-copilot/main/install.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/nguyenducviet4/superpowers/main/install.sh | bash
 
-REPO="DwainTR/superpowers-copilot"
+REPO="nguyenducviet4/superpowers"
 COPILOT_HOME="${COPILOT_HOME:-$HOME/.copilot}"
-CACHE_DIR="$COPILOT_HOME/state/plugin-sources/superpowers-copilot"
+CACHE_DIR="$COPILOT_HOME/state/plugin-sources/superpowers"
 
 echo "🦸 Superpowers for GitHub Copilot CLI — Installer"
 echo "=================================================="

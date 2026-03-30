@@ -1,12 +1,12 @@
 {
-  "name": "superpowers-copilot",
+  "name": "superpowers",
   "metadata": {
     "description": "Superpowers skills library for GitHub Copilot CLI — TDD, debugging, brainstorming, plan writing, and proven development workflows.",
     "version": "1.0.0"
   },
   "owner": {
-    "name": "DwainTR",
-    "url": "https://github.com/DwainTR"
+    "name": "nguyenducviet4",
+    "url": "https://github.com/nguyenducviet4"
   },
   "plugins": [
     {

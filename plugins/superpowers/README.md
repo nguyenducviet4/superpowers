@@ -5,8 +5,8 @@ The complete [Superpowers](https://github.com/obra/superpowers) skills library b
 ## Installation
 
 ```bash
-copilot plugin marketplace add DwainTR/superpowers-copilot
-copilot plugin install superpowers@superpowers-copilot
+copilot plugin marketplace add nguyenducviet4/superpowers
+copilot plugin install superpowers@superpowers
 ```
 
 ## What's Included

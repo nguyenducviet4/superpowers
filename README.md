@@ -24,20 +24,20 @@ Superpowers already supports Claude Code, Cursor, Codex, Gemini CLI, and OpenCod
 ### Method 1 — One command (easiest)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/DwainTR/superpowers-copilot/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/nguyenducviet4/superpowers/main/install.sh | bash
 ```
 
 ### Method 2 — Native plugin system (direct install)
 
 ```bash
-copilot plugin install DwainTR/superpowers-copilot:plugins/superpowers
+copilot plugin install nguyenducviet4/superpowers:plugins/superpowers
 ```
 
 ### Method 3 — Via marketplace
 
 ```bash
-copilot plugin marketplace add DwainTR/superpowers-copilot
-copilot plugin install superpowers@superpowers-copilot
+copilot plugin marketplace add nguyenducviet4/superpowers
+copilot plugin install superpowers@superpowers
 ```
 
 ### Verify
@@ -113,17 +113,70 @@ The install script also adds a snippet to `~/.copilot/copilot-instructions.md` t
 
 ## Updating
 
-### Method 1 users
+### Check your installed version
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/DwainTR/superpowers-copilot/main/install.sh | bash
+copilot plugin list
 ```
 
-### Method 2 users
+This shows all installed plugins with their version numbers.
+
+### Method 1 — Re-run the install script (recommended)
+
+Re-running the script handles everything automatically:
 
 ```bash
-copilot plugin update superpowers@superpowers-copilot
+curl -fsSL https://raw.githubusercontent.com/nguyenducviet4/superpowers/main/install.sh | bash
 ```
+
+The script will:
+- Detect your existing installation and pull the latest changes
+- Reinstall the plugin with updated skills and agents
+- Leave your `~/.copilot/copilot-instructions.md` untouched (no duplicate entries)
+
+### Method 2 — Native plugin update command
+
+```bash
+copilot plugin update superpowers
+```
+
+### Method 3 — Force reinstall
+
+If the methods above fail, do a clean reinstall:
+
+```bash
+# 1. Remove the existing plugin
+copilot plugin uninstall superpowers
+
+# 2. Remove the custom instructions snippet to avoid duplicates
+#    Open ~/.copilot/copilot-instructions.md and delete the block between:
+#    <!-- superpowers-installed --> ... <!-- /superpowers-installed -->
+
+# 3. Reinstall from scratch
+copilot plugin install nguyenducviet4/superpowers:plugins/superpowers
+```
+
+Or use the one-line installer which handles all of the above:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/nguyenducviet4/superpowers/main/install.sh | bash
+```
+
+### Verify after updating
+
+Start a new Copilot CLI session and run:
+
+```
+/skills list
+```
+
+You should see all 14 Superpowers skills. To confirm the agent is loaded:
+
+```
+/agents
+```
+
+If you encounter issues, [open an issue](https://github.com/nguyenducviet4/superpowers/issues).
 
 ## Uninstalling
 
@@ -136,7 +189,7 @@ And remove the `<!-- superpowers-installed -->` section from `~/.copilot/copilot
 ## Credits
 
 - **[Jesse Vincent](https://github.com/obra)** — Creator of [Superpowers](https://github.com/obra/superpowers). All skills are his original work under MIT License.
-- **[DwainTR](https://github.com/DwainTR)** — Copilot CLI packaging and installation tooling.
+- **[nguyenducviet4](https://github.com/nguyenducviet4)** — Copilot CLI packaging and installation tooling.
 
 ## License
 
