@@ -1,0 +1,15 @@
+{
+  "name": "superpowers",
+  "description": "Complete Superpowers skills library by Jesse Vincent (obra/superpowers), packaged for GitHub Copilot CLI. Includes TDD, systematic debugging, brainstorming, plan writing, subagent-driven development, code review, and more.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Jesse Vincent",
+    "url": "https://github.com/obra"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/obra/superpowers",
+  "repository": "https://github.com/DwainTR/superpowers-copilot",
+  "keywords": ["skills", "tdd", "debugging", "brainstorming", "collaboration", "best-practices", "workflows"],
+  "agents": "agents/",
+  "skills": "skills/"
+}

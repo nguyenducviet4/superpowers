@@ -27,7 +27,13 @@ Superpowers already supports Claude Code, Cursor, Codex, Gemini CLI, and OpenCod
 curl -fsSL https://raw.githubusercontent.com/DwainTR/superpowers-copilot/main/install.sh | bash
 ```
 
-### Method 2 — Native plugin marketplace
+### Method 2 — Native plugin system (direct install)
+
+```bash
+copilot plugin install DwainTR/superpowers-copilot:plugins/superpowers
+```
+
+### Method 3 — Via marketplace
 
 ```bash
 copilot plugin marketplace add DwainTR/superpowers-copilot
@@ -42,7 +48,11 @@ Start a new Copilot CLI session and run:
 /skills list
 ```
 
-You should see all 14 Superpowers skills listed.
+You should see all 14 Superpowers skills listed. To verify the agent:
+
+```
+/agents
+```
 
 ## What's Included
 
@@ -118,8 +128,7 @@ copilot plugin update superpowers@superpowers-copilot
 ## Uninstalling
 
 ```bash
-rm -rf ~/.copilot/skills/superpowers
-rm -f ~/.copilot/agents/code-reviewer.md
+copilot plugin uninstall superpowers
 ```
 
 And remove the `<!-- superpowers-installed -->` section from `~/.copilot/copilot-instructions.md`.

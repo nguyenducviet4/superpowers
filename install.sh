@@ -5,9 +5,8 @@ set -euo pipefail
 # Usage: curl -fsSL https://raw.githubusercontent.com/DwainTR/superpowers-copilot/main/install.sh | bash
 
 REPO="DwainTR/superpowers-copilot"
-MARKETPLACE_NAME="superpowers-copilot"
 COPILOT_HOME="${COPILOT_HOME:-$HOME/.copilot}"
-CACHE_DIR="$COPILOT_HOME/marketplace-cache/dwaintr-superpowers-copilot"
+CACHE_DIR="$COPILOT_HOME/state/plugin-sources/superpowers-copilot"
 
 echo "🦸 Superpowers for GitHub Copilot CLI — Installer"
 echo "=================================================="
@@ -21,51 +20,33 @@ fi
 
 # Check if copilot CLI is installed
 if ! command -v copilot &> /dev/null; then
-    echo "⚠️  GitHub Copilot CLI not found in PATH."
-    echo "   Install it first: https://github.com/github/copilot-cli"
-    echo "   Continuing anyway (skills will be available when Copilot CLI is installed)..."
-    echo ""
+    echo "❌ GitHub Copilot CLI not found in PATH."
+    echo "   Install it first: https://docs.github.com/en/copilot/how-tos/copilot-cli"
+    exit 1
 fi
 
-# Clone or update the marketplace repo
-if [ -d "$CACHE_DIR" ]; then
-    echo "📦 Updating existing marketplace cache..."
+# Clone or update the source repository
+if [ -d "$CACHE_DIR/.git" ]; then
+    echo "📦 Updating existing source cache..."
     cd "$CACHE_DIR"
     git pull --quiet 2>/dev/null || {
-        echo "   Cache update failed, removing and re-cloning..."
+        echo "   Update failed, removing and re-cloning..."
         rm -rf "$CACHE_DIR"
         git clone --quiet "https://github.com/$REPO.git" "$CACHE_DIR"
     }
+    cd - > /dev/null
 else
-    echo "📦 Cloning marketplace..."
+    echo "📦 Cloning source repository..."
     mkdir -p "$(dirname "$CACHE_DIR")"
     git clone --quiet "https://github.com/$REPO.git" "$CACHE_DIR"
 fi
 
-# Create skills directory and symlink
-SKILLS_SRC="$CACHE_DIR/plugins/superpowers/skills"
-SKILLS_DST="$COPILOT_HOME/skills/superpowers"
+PLUGIN_DIR="$CACHE_DIR/plugins/superpowers"
 
-mkdir -p "$COPILOT_HOME/skills"
-if [ -L "$SKILLS_DST" ] || [ -d "$SKILLS_DST" ]; then
-    echo "🔄 Removing old skills symlink..."
-    rm -rf "$SKILLS_DST"
-fi
-ln -s "$SKILLS_SRC" "$SKILLS_DST"
-echo "✅ Skills linked: $SKILLS_DST → $SKILLS_SRC"
-
-# Create agents directory and symlink
-AGENTS_SRC="$CACHE_DIR/plugins/superpowers/agents/code-reviewer.md"
-AGENTS_DIR="$COPILOT_HOME/agents"
-AGENTS_DST="$AGENTS_DIR/code-reviewer.md"
-
-mkdir -p "$AGENTS_DIR"
-if [ -L "$AGENTS_DST" ] || [ -f "$AGENTS_DST" ]; then
-    echo "🔄 Removing old agent symlink..."
-    rm -f "$AGENTS_DST"
-fi
-ln -s "$AGENTS_SRC" "$AGENTS_DST"
-echo "✅ Agent linked: $AGENTS_DST → $AGENTS_SRC"
+# Install (or reinstall/update) the plugin using the native Copilot CLI plugin system
+echo "🔌 Installing plugin via Copilot CLI native plugin system..."
+copilot plugin install "$PLUGIN_DIR"
+echo "✅ Plugin installed: superpowers"
 
 # Add custom instructions snippet if not already present
 INSTRUCTIONS_FILE="$COPILOT_HOME/copilot-instructions.md"
@@ -98,17 +79,19 @@ INSTRUCTIONS
     echo "✅ Custom instructions updated: $INSTRUCTIONS_FILE"
 fi
 
+SKILL_COUNT=$(ls "$PLUGIN_DIR/skills" | wc -l | tr -d ' ')
+
 echo ""
 echo "🎉 Superpowers installed successfully!"
 echo ""
-echo "   Skills: $(ls "$SKILLS_DST" | wc -l | tr -d ' ') skills available"
-echo "   Agent:  code-reviewer"
+echo "   Plugin:  superpowers ($SKILL_COUNT skills + code-reviewer agent)"
 echo ""
 echo "   Next steps:"
 echo "   1. Start a new Copilot CLI session: copilot"
-echo "   2. Verify: /skills list"
-echo "   3. Try: 'Use the /brainstorming skill to explore an idea'"
+echo "   2. Verify skills:  /skills list"
+echo "   3. Verify agent:   /agents"
+echo "   4. Try: 'Use the /brainstorming skill to explore an idea'"
 echo ""
-echo "   To update: run this script again"
-echo "   To uninstall: rm -rf $SKILLS_DST $AGENTS_DST $CACHE_DIR"
-echo "     and remove the superpowers section from $INSTRUCTIONS_FILE"
+echo "   To update:    run this script again"
+echo "   To uninstall: copilot plugin uninstall superpowers"
+echo "                 and remove the <!-- superpowers-installed --> section from $INSTRUCTIONS_FILE"
