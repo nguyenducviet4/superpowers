@@ -1,0 +1,28 @@
+{
+  "name": "superpowers",
+  "description": "Marketplace for Superpowers core skills library",
+  "owner": {
+    "name": "Jesse Vincent",
+    "email": "jesse@fsck.com"
+  },
+  "plugins": [
+    {
+      "name": "superpowers",
+      "description": "Core skills library for GitHub Copilot: TDD, debugging, collaboration patterns, and proven techniques",
+      "version": "5.0.6",
+      "source": "./",
+      "author": {
+        "name": "Jesse Vincent",
+        "email": "jesse@fsck.com"
+      },
+      "keywords": [
+        "skills",
+        "tdd",
+        "debugging",
+        "collaboration",
+        "best-practices",
+        "workflows"
+      ]
+    }
+  ]
+}
