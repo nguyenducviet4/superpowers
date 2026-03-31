@@ -1,6 +1,7 @@
 # Superpowers for GitHub Copilot CLI
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/Version-5.0.6--copilot.1-orange)](package.json)
 [![Skills](https://img.shields.io/badge/Skills-14-blue)](plugins/superpowers/skills)
 [![Source](https://img.shields.io/badge/Source-obra%2Fsuperpowers-purple)](https://github.com/obra/superpowers)
 
@@ -23,8 +24,19 @@ Superpowers already supports Claude Code, Cursor, Codex, Gemini CLI, and OpenCod
 
 ### Method 1 — One command (easiest)
 
+**macOS / Linux:**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/nguyenducviet4/superpowers/main/install.sh | bash
+```
+
+**Windows (CMD):**
+```cmd
+install.cmd
+```
+
+**Windows (PowerShell):**
+```powershell
+powershell -ExecutionPolicy Bypass -File install.ps1
 ```
 
 ### Method 2 — Native plugin system (direct install)
@@ -106,10 +118,21 @@ This repo follows the exact same patterns as other Copilot CLI plugins:
 
 - **Skills** are stored in `plugins/superpowers/skills/` — each skill has a `SKILL.md` with YAML frontmatter
 - **Agents** are stored in `plugins/superpowers/agents/` — Markdown files with agent configuration
+- **Hooks** are stored in `hooks/` — SDK `onSessionStart` + CLI lifecycle hooks (`preCompact`, `agentStop`)
 - **Marketplace manifest** in `.claude-plugin/marketplace.json` — allows `copilot plugin install`
-- **Install script** for one-command setup — clones, symlinks, and configures custom instructions
+- **Install scripts** for one-command setup — `install.sh` (macOS/Linux), `install.ps1` / `install.cmd` (Windows)
 
-The install script also adds a snippet to `~/.copilot/copilot-instructions.md` that tells Copilot to check for relevant skills before every task — replicating the session-start hook that Superpowers uses in Claude Code.
+### 3-Layer Context Protection
+
+The plugin uses three complementary layers to ensure the agent always knows about Superpowers skills:
+
+| Layer | Mechanism | When |
+|-------|-----------|------|
+| **Layer 1** | `copilot-instructions.md` | Always loaded at session start (static fallback) |
+| **Layer 2** | `hooks-copilot.json` → `preCompact` | Before context compaction (preserves awareness) |
+| **Layer 3** | `copilot-plugin.js` → `onSessionStart` | SDK session creation (dynamic injection) |
+
+This mirrors the `SessionStart` hook system that obra/superpowers uses in Claude Code and Cursor.
 
 ## Updating
 
@@ -132,7 +155,8 @@ curl -fsSL https://raw.githubusercontent.com/nguyenducviet4/superpowers/main/ins
 The script will:
 - Detect your existing installation and pull the latest changes
 - Reinstall the plugin with updated skills and agents
-- Leave your `~/.copilot/copilot-instructions.md` untouched (no duplicate entries)
+- Update SDK hooks and dependencies (if Node.js is available)
+- Update `~/.copilot/copilot-instructions.md` with latest skill content (replaces existing block)
 
 ### Method 2 — Native plugin update command
 

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "hooks": {
+    "preCompact": {
+      "command": "node \"${PLUGIN_ROOT}/hooks/copilot-plugin.js\" pre-compact",
+      "timeout": 10
+    },
+    "agentStop": {
+      "command": "node \"${PLUGIN_ROOT}/hooks/copilot-plugin.js\" agent-stop",
+      "timeout": 5
+    }
+  }
+}

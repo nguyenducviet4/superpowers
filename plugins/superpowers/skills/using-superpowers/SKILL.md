@@ -31,6 +31,8 @@ If CLAUDE.md, GEMINI.md, or AGENTS.md says "don't use TDD" and a skill says "alw
 
 **In Gemini CLI:** Skills activate via the `activate_skill` tool. Gemini loads skill metadata at session start and activates the full content on demand.
 
+**In GitHub Copilot CLI:** Skills are loaded via the plugin system and activated as slash commands. Use `/skills list` to see available skills, or invoke directly with `/skill-name`. The plugin's `onSessionStart` hook automatically injects this skill's content at session start.
+
 **In other environments:** Check your platform's documentation for how skills are loaded.
 
 ## Platform Adaptation

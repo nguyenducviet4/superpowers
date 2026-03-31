@@ -1,0 +1,14 @@
+{
+  "name": "superpowers-copilot",
+  "version": "5.0.6-copilot.1",
+  "type": "module",
+  "description": "Superpowers skills library by Jesse Vincent (obra/superpowers), packaged for GitHub Copilot CLI with SDK hooks integration",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nguyenducviet4/superpowers.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@github/copilot-sdk": "^1.0.0"
+  }
+}

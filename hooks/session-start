@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# SessionStart hook for superpowers plugin — Copilot CLI adaptation
+# Adapted from obra/superpowers hooks/session-start for GitHub Copilot CLI
+
+set -euo pipefail
+
+# Determine plugin root directory
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PLUGIN_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+# Read using-superpowers content
+# Note: In superpowers-me, skills are under plugins/superpowers/skills/
+using_superpowers_content=$(cat "${PLUGIN_ROOT}/plugins/superpowers/skills/using-superpowers/SKILL.md" 2>&1 || echo "Error reading using-superpowers skill")
+
+# Escape string for JSON embedding using bash parameter substitution.
+# Each ${s//old/new} is a single C-level pass - orders of magnitude
+# faster than the character-by-character loop this replaces.
+escape_for_json() {
+    local s="$1"
+    s="${s//\\/\\\\}"
+    s="${s//\"/\\\"}"
+    s="${s//$'\n'/\\n}"
+    s="${s//$'\r'/\\r}"
+    s="${s//$'\t'/\\t}"
+    printf '%s' "$s"
+}
+
+using_superpowers_escaped=$(escape_for_json "$using_superpowers_content")
+session_context="<EXTREMELY_IMPORTANT>\nYou have superpowers.\n\n**Below is the full content of your 'superpowers:using-superpowers' skill - your introduction to using skills. For all other skills, use the skill system:**\n\n${using_superpowers_escaped}\n</EXTREMELY_IMPORTANT>"
+
+# Output context injection as JSON.
+# Copilot CLI uses additional_context format.
+# Uses printf instead of heredoc to work around bash 5.3+ bug
+# where heredoc variable expansion hangs when content exceeds ~512 bytes.
+# See: https://github.com/obra/superpowers/issues/571
+printf '{\n  "additional_context": "%s"\n}\n' "$session_context"
+
+exit 0

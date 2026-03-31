@@ -48,21 +48,62 @@ echo "🔌 Installing plugin via Copilot CLI native plugin system..."
 copilot plugin install "$PLUGIN_DIR"
 echo "✅ Plugin installed: superpowers"
 
-# Add custom instructions snippet if not already present
-INSTRUCTIONS_FILE="$COPILOT_HOME/copilot-instructions.md"
-MARKER="<!-- superpowers-installed -->"
-
-if [ -f "$INSTRUCTIONS_FILE" ] && grep -q "$MARKER" "$INSTRUCTIONS_FILE" 2>/dev/null; then
-    echo "ℹ️  Custom instructions already configured."
+# ─── SDK Hooks Setup ───
+# Try to install @github/copilot-sdk for onSessionStart hook support
+HOOKS_INSTALLED=false
+if command -v node &> /dev/null && command -v npm &> /dev/null; then
+    echo "🔧 Installing SDK dependencies for hooks..."
+    cd "$CACHE_DIR"
+    if npm install --quiet 2>/dev/null; then
+        HOOKS_INSTALLED=true
+        echo "✅ SDK hooks dependencies installed"
+    else
+        echo "⚠️  SDK install failed — hooks will use fallback mode"
+    fi
+    cd - > /dev/null
 else
-    echo "" >> "$INSTRUCTIONS_FILE"
-    cat >> "$INSTRUCTIONS_FILE" << 'INSTRUCTIONS'
+    echo "ℹ️  Node.js not found — skipping SDK hooks (instructions.md fallback active)"
+fi
 
-<!-- superpowers-installed -->
+# ─── CLI Hooks Configuration ───
+HOOKS_DIR="$COPILOT_HOME/hooks"
+if [ "$HOOKS_INSTALLED" = true ]; then
+    echo "🔧 Configuring CLI lifecycle hooks..."
+    mkdir -p "$HOOKS_DIR"
+    # Copy hooks config if not already present
+    if [ ! -f "$HOOKS_DIR/hooks-copilot.json" ]; then
+        cp "$CACHE_DIR/hooks/hooks-copilot.json" "$HOOKS_DIR/hooks-copilot.json"
+        echo "✅ CLI hooks configured: preCompact, agentStop"
+    else
+        echo "ℹ️  CLI hooks already configured."
+    fi
+fi
+
+# ─── Custom Instructions (Layer 1 — Static Bootstrap) ───
+# Inject FULL using-superpowers content (not just a summary)
+INSTRUCTIONS_FILE="$COPILOT_HOME/copilot-instructions.md"
+MARKER_START="<!-- superpowers-installed -->"
+MARKER_END="<!-- /superpowers-installed -->"
+SKILL_FILE="$PLUGIN_DIR/skills/using-superpowers/SKILL.md"
+
+# Read the full using-superpowers skill content
+if [ -f "$SKILL_FILE" ]; then
+    SKILL_CONTENT=$(cat "$SKILL_FILE")
+else
+    SKILL_CONTENT="Error: could not read using-superpowers skill."
+fi
+
+# Build the full instructions block
+INSTRUCTIONS_BLOCK="$MARKER_START
 ## Superpowers Skills
 
-You have Superpowers skills installed. Before any task, check if a relevant skill applies.
-If there is even a 1% chance a skill might be relevant, invoke it.
+<EXTREMELY_IMPORTANT>
+You have superpowers.
+
+**Below is the full content of your 'superpowers:using-superpowers' skill - your introduction to using skills. For all other skills, use the skill system:**
+
+$SKILL_CONTENT
+</EXTREMELY_IMPORTANT>
 
 Available skills: brainstorming, test-driven-development, systematic-debugging, writing-plans,
 executing-plans, subagent-driven-development, dispatching-parallel-agents, requesting-code-review,
@@ -73,10 +114,26 @@ Priority order:
 1. Process skills first (brainstorming, debugging) — these determine HOW to approach the task
 2. Implementation skills second — these guide execution
 
-"Let's build X" → brainstorming first, then implementation skills.
-"Fix this bug" → systematic-debugging first, then domain-specific skills.
-INSTRUCTIONS
-    echo "✅ Custom instructions updated: $INSTRUCTIONS_FILE"
+\"Let's build X\" → brainstorming first, then implementation skills.
+\"Fix this bug\" → systematic-debugging first, then domain-specific skills.
+$MARKER_END"
+
+if [ -f "$INSTRUCTIONS_FILE" ] && grep -q "$MARKER_START" "$INSTRUCTIONS_FILE" 2>/dev/null; then
+    # Replace existing block between markers
+    echo "🔄 Updating custom instructions with full skill content..."
+    # Use sed to replace content between markers
+    TEMP_FILE=$(mktemp)
+    awk -v start="$MARKER_START" -v end="$MARKER_END" -v block="$INSTRUCTIONS_BLOCK" '
+        $0 == start { print block; skip=1; next }
+        $0 == end { skip=0; next }
+        !skip { print }
+    ' "$INSTRUCTIONS_FILE" > "$TEMP_FILE"
+    mv "$TEMP_FILE" "$INSTRUCTIONS_FILE"
+    echo "✅ Custom instructions updated with full using-superpowers content"
+else
+    echo "" >> "$INSTRUCTIONS_FILE"
+    echo "$INSTRUCTIONS_BLOCK" >> "$INSTRUCTIONS_FILE"
+    echo "✅ Custom instructions created: $INSTRUCTIONS_FILE"
 fi
 
 SKILL_COUNT=$(ls "$PLUGIN_DIR/skills" | wc -l | tr -d ' ')
@@ -84,7 +141,12 @@ SKILL_COUNT=$(ls "$PLUGIN_DIR/skills" | wc -l | tr -d ' ')
 echo ""
 echo "🎉 Superpowers installed successfully!"
 echo ""
-echo "   Plugin:  superpowers ($SKILL_COUNT skills + code-reviewer agent)"
+echo "   Plugin:  superpowers v5.0.6-copilot.1 ($SKILL_COUNT skills + code-reviewer agent)"
+if [ "$HOOKS_INSTALLED" = true ]; then
+    echo "   Hooks:   ✅ SDK onSessionStart + CLI preCompact/agentStop"
+else
+    echo "   Hooks:   ⚠️  Fallback mode (copilot-instructions.md only)"
+fi
 echo ""
 echo "   Next steps:"
 echo "   1. Start a new Copilot CLI session: copilot"
@@ -94,4 +156,4 @@ echo "   4. Try: 'Use the /brainstorming skill to explore an idea'"
 echo ""
 echo "   To update:    run this script again"
 echo "   To uninstall: copilot plugin uninstall superpowers"
-echo "                 and remove the <!-- superpowers-installed --> section from $INSTRUCTIONS_FILE"
+echo "                 and remove the $MARKER_START section from $INSTRUCTIONS_FILE"
